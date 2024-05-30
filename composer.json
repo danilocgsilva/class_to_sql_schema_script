@@ -1,0 +1,16 @@
+{
+    "name": "danilocgsilva/class_to_sql_schema_script",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Danilocgsilva\\ClassToSqlSchemaScript\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Danilo Silva",
+            "email": "contact@danilocgsilva.me"
+        }
+    ],
+    "require": {}
+}
