@@ -12,7 +12,7 @@ class DatabaseScriptSpitterTest extends TestCase
     public function testCreateBasicScript(): void
     {
         $expectedScript = <<<EOF
-CREATE DATABASE wordpress_database DEFAULT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE wordpress_database DEFAULT CHARACTER SET utf8 COLLATE utf8mb3_unicode_ci;
 EOF;
         $databaseScriptSpitter = new DatabaseScriptSpitter("wordpress_database");
 
@@ -22,7 +22,7 @@ EOF;
     public function testCreateCareSystemBasicScript(): void
     {
         $expectedScript = <<<EOF
-CREATE DATABASE care_system DEFAULT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE care_system DEFAULT CHARACTER SET utf8 COLLATE utf8mb3_unicode_ci;
 EOF;
         $databaseScriptSpitter = new DatabaseScriptSpitter("care_system");
 

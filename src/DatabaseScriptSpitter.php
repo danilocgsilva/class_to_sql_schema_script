@@ -8,7 +8,7 @@ class DatabaseScriptSpitter implements SpitterInterface
 {
     private string $charset = "utf8";
 
-    private string $collate = "utf8mb4_unicode_ci";
+    private string $collate = "utf8mb3_unicode_ci";
 
     public function __construct(private readonly string $name)
     {
