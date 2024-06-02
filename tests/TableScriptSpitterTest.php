@@ -9,7 +9,7 @@ use Danilocgsilva\ClassToSqlSchemaScript\TableScriptSpitter;
 use Danilocgsilva\ClassToSqlSchemaScript\FieldScriptSpitter;
 
 class TableScriptSpitterTest extends TestCase
-{
+{   
     public function testScriptMedicinesSimpleTable(): void
     {
         $expectedString = <<<EOF
@@ -38,6 +38,22 @@ EOF;
                 ->setType("INT")
         );
 
+        $this->assertSame($expectedString, $tableScriptSpitter->getScript());
+    }
+
+    public function testPrimaryKey(): void
+    {
+        $expectedString = <<<EOF
+CREATE TABLE cars (
+    id INT,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+EOF;
+        $tableScriptSpitter = new TableScriptSpitter("cars");
+        $idField = new FieldScriptSpitter("id");
+        $idField->setType("INT");
+        $tableScriptSpitter->addField($idField);
+        $tableScriptSpitter->setPrimaryKey("id");
         $this->assertSame($expectedString, $tableScriptSpitter->getScript());
     }
 }

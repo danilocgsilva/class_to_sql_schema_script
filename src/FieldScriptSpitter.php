@@ -22,4 +22,9 @@ class FieldScriptSpitter implements SpitterInterface
     {
         return $this->name . " " . $this->type;
     }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
 }

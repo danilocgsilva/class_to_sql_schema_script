@@ -24,4 +24,18 @@ class FieldScriptSpitterTest extends TestCase
         $fieldSpitter->setType("INT");
         $this->assertSame($expectedString, $fieldSpitter->getScript());
     }
+
+    public function testGetName(): void
+    {
+        $fieldName = "id";
+        $fieldSpitter = new FieldScriptSpitter($fieldName);
+        $this->assertSame($fieldName, $fieldSpitter->getName());
+    }
+
+    public function testGetFieldByName(): void
+    {
+        $fieldName = "person_id";
+        $field = new FieldScriptSpitter($fieldName);
+        $this->assertSame($fieldName, $field->getName());
+    }
 }
