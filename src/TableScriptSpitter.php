@@ -35,12 +35,25 @@ class TableScriptSpitter implements SpitterInterface
     public function getScript(): string
     {
         $baseString = "CREATE TABLE %s (\n";
-        $baseString .= "    " . $this->fields[0]->getScript();
+
+        foreach ($this->fields as $key => $field) {
+            $baseString .= "    " . $field->getScript();
+            end($this->fields);
+            if ($key !== key($this->fields) && !$this->primaryKeyField) {
+                $baseString .= ",";
+            }
+            $baseString .= "\n";
+        }
+        
+        
         if ($this->primaryKeyField) {
+            $baseString = rtrim($baseString, "\n");
             $baseStringPrimaryKey = ",\n    PRIMARY KEY (%s)";
             $baseString .= sprintf($baseStringPrimaryKey, $this->primaryKeyField->getName());
         }
-        $baseString .= "\n) ENGINE=InnoDB DEFAULT CHARSET=%s COLLATE=%s;";
+        
+
+        $baseString .= ") ENGINE=InnoDB DEFAULT CHARSET=%s COLLATE=%s;";
         return sprintf($baseString, $this->tableName, $this->charset, $this->collate);
     }
 
