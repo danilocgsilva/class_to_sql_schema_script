@@ -98,6 +98,75 @@ EOF;
         );
     }
 
+    public function test2SeveralFields(): void
+    {
+        $exptectedString = <<<EOF
+CREATE TABLE deliveries (
+    id INT,
+    name VARCHAR(192),
+    item VARCHAR(192),
+    amount INT,
+    total INT,
+    code VARCHAR(192)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+EOF;
+
+        $table = new TableScriptSpitter("deliveries");
+
+        $field1 = new FieldScriptSpitter("id");
+        $field1->setType("INT");
+        
+        $field2 = new FieldScriptSpitter("name");
+        $field2->setType("VARCHAR(192)");
+
+        $field3 = new FieldScriptSpitter("item");
+        $field3->setType("VARCHAR(192)");
+
+        $field4 = new FieldScriptSpitter("amount");
+        $field4->setType("INT");
+
+        $field5 = new FieldScriptSpitter("total");
+        $field5->setType("INT");
+
+        $field6 = new FieldScriptSpitter("code");
+        $field6->setType("VARCHAR(192)");
+
+        $table->addField($field1);
+        $table->addField($field2);
+        $table->addField($field3);
+        $table->addField($field4);
+        $table->addField($field5);
+        $table->addField($field6);
+
+        $this->assertSame($exptectedString, $table->getScript());
+    }
+
+    public function testFluentInterface(): void
+    {
+        $exptectedString = <<<EOF
+CREATE TABLE projects (
+    id INT,
+    name VARCHAR(192),
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+EOF;
+
+        $table = new TableScriptSpitter("projects");
+
+        $field1 = new FieldScriptSpitter("id");
+        $field1->setType("INT");
+
+        $field2 = new FieldScriptSpitter("name");
+        $field2->setType("VARCHAR(192)");
+
+        $table
+            ->addField($field1)
+            ->addField($field2)
+            ->setPrimaryKey("id");
+
+        $this->assertSame($exptectedString, $table->getScript());
+    }
+
     public static function providesFieldsAndTableNames(): array
     {
         return [

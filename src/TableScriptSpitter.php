@@ -20,9 +20,10 @@ class TableScriptSpitter implements SpitterInterface
     {
     }
 
-    public function addField(FieldScriptSpitter $field)
+    public function addField(FieldScriptSpitter $field): self
     {
         $this->fields[] = $field;
+        return $this;
     }
 
     public function setPrimaryKey(string $fieldName): self
@@ -39,19 +40,16 @@ class TableScriptSpitter implements SpitterInterface
         foreach ($this->fields as $key => $field) {
             $baseString .= "    " . $field->getScript();
             end($this->fields);
-            if ($key !== key($this->fields) && !$this->primaryKeyField) {
+            $lastFieldKey = $key !== key($this->fields);
+            if ($lastFieldKey && $this->primaryKeyField === null || $this->primaryKeyField) {
                 $baseString .= ",";
             }
             $baseString .= "\n";
         }
-        
-        
+
         if ($this->primaryKeyField) {
-            $baseString = rtrim($baseString, "\n");
-            $baseStringPrimaryKey = ",\n    PRIMARY KEY (%s)\n";
-            $baseString .= sprintf($baseStringPrimaryKey, $this->primaryKeyField->getName());
+            $baseString .= sprintf("    PRIMARY KEY (%s)\n", $this->primaryKeyField->getName());
         }
-        
 
         $baseString .= ") ENGINE=InnoDB DEFAULT CHARSET=%s COLLATE=%s;";
         return sprintf($baseString, $this->tableName, $this->charset, $this->collate);
