@@ -48,7 +48,7 @@ class TableScriptSpitter implements SpitterInterface
         
         if ($this->primaryKeyField) {
             $baseString = rtrim($baseString, "\n");
-            $baseStringPrimaryKey = ",\n    PRIMARY KEY (%s)";
+            $baseStringPrimaryKey = ",\n    PRIMARY KEY (%s)\n";
             $baseString .= sprintf($baseStringPrimaryKey, $this->primaryKeyField->getName());
         }
         
