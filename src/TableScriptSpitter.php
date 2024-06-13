@@ -10,9 +10,11 @@ class TableScriptSpitter implements SpitterInterface
 {
     private string $charset = "utf8mb3";
 
-    private string $collate = "utf8mb3_unicode_ci";
+    private string $collateSuffix = "unicode_ci";
 
     private FieldScriptSpitter|null $primaryKeyField = null;
+
+    private $ifNotExists = false;
 
     public array $fields = [];
     
@@ -26,16 +28,31 @@ class TableScriptSpitter implements SpitterInterface
         return $this;
     }
 
+    public function createIfNotExists(): self
+    {
+        $this->ifNotExists = true;
+        return $this;
+    }
+
     public function setPrimaryKey(string $fieldName): self
     {
         $primaryKeyField = $this->getFieldKeyByName($fieldName);
         $this->primaryKeyField = $this->fields[$primaryKeyField];
         return $this;
     }
+    
+    public function setCharSet(string $charset): self
+    {
+        $this->charset = $charset;
+        return $this;
+    }
 
     public function getScript(): string
     {
         $baseString = "CREATE TABLE %s (\n";
+        if ($this->ifNotExists) {
+            $baseString = sprintf($baseString, "IF NOT EXISTS %s");
+        }
 
         foreach ($this->fields as $key => $field) {
             $baseString .= "    " . $field->getScript();
@@ -52,7 +69,7 @@ class TableScriptSpitter implements SpitterInterface
         }
 
         $baseString .= ") ENGINE=InnoDB DEFAULT CHARSET=%s COLLATE=%s;";
-        return sprintf($baseString, $this->tableName, $this->charset, $this->collate);
+        return sprintf($baseString, $this->tableName, $this->charset, $this->charset . "_" . $this->collateSuffix);
     }
 
     public function getFieldKeyByName(string $fieldName): int

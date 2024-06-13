@@ -10,7 +10,7 @@ use Danilocgsilva\ClassToSqlSchemaScript\FieldScriptSpitter;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class TableScriptSpitterTest extends TestCase
-{   
+{
     public function testScriptMedicinesSimpleTable(): void
     {
         $expectedString = <<<EOF
@@ -22,6 +22,30 @@ EOF;
         $nameField = new FieldScriptSpitter("name");
         $nameField->setType("VARCHAR(192)");
         $tableScriptSpitter->addField($nameField);
+
+        $this->assertSame($expectedString, $tableScriptSpitter->getScript());
+    }
+
+    public function testFieldsEmptyFields(): void
+    {
+        $expectedString = <<<EOF
+CREATE TABLE fields (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+EOF;
+        $tableScriptSpitter = new TableScriptSpitter("fields");
+
+        $this->assertSame($expectedString, $tableScriptSpitter->getScript());
+    }
+
+    public function testIfNotExists(): void
+    {
+        $expectedString = <<<EOF
+CREATE TABLE IF NOT EXISTS drinks (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+EOF;
+
+        $tableScriptSpitter = new TableScriptSpitter("drinks");
+        $tableScriptSpitter->createIfNotExists();
 
         $this->assertSame($expectedString, $tableScriptSpitter->getScript());
     }
@@ -69,7 +93,7 @@ EOF;
     public function testSeveralFields(): void
     {
         $tableName = "address";
-        
+
         $fields = [
             "    name VARCHAR(192),\n",
             "    phone VARCHAR(32)\n"
@@ -113,30 +137,30 @@ EOF;
 
         $table = new TableScriptSpitter("deliveries");
 
-        $field1 = new FieldScriptSpitter("id");
-        $field1->setType("INT");
-        
-        $field2 = new FieldScriptSpitter("name");
-        $field2->setType("VARCHAR(192)");
+        $field1 = (new FieldScriptSpitter("id"))
+            ->setType("INT");
 
-        $field3 = new FieldScriptSpitter("item");
-        $field3->setType("VARCHAR(192)");
+        $field2 = (new FieldScriptSpitter("name"))
+            ->setType("VARCHAR(192)");
 
-        $field4 = new FieldScriptSpitter("amount");
-        $field4->setType("INT");
+        $field3 = (new FieldScriptSpitter("item"))
+            ->setType("VARCHAR(192)");
 
-        $field5 = new FieldScriptSpitter("total");
-        $field5->setType("INT");
+        $field4 = (new FieldScriptSpitter("amount"))
+            ->setType("INT");
 
-        $field6 = new FieldScriptSpitter("code");
-        $field6->setType("VARCHAR(192)");
+        $field5 = (new FieldScriptSpitter("total"))
+            ->setType("INT");
 
-        $table->addField($field1);
-        $table->addField($field2);
-        $table->addField($field3);
-        $table->addField($field4);
-        $table->addField($field5);
-        $table->addField($field6);
+        $field6 = (new FieldScriptSpitter("code"))
+            ->setType("VARCHAR(192)");
+
+        $table->addField($field1)
+            ->addField($field2)
+            ->addField($field3)
+            ->addField($field4)
+            ->addField($field5)
+            ->addField($field6);
 
         $this->assertSame($exptectedString, $table->getScript());
     }
@@ -163,6 +187,51 @@ EOF;
             ->addField($field1)
             ->addField($field2)
             ->setPrimaryKey("id");
+
+        $this->assertSame($exptectedString, $table->getScript());
+    }
+
+    public function testGetScript(): void
+    {
+        $exptectedString = <<<EOF
+CREATE TABLE IF NOT EXISTS payloads (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    content TEXT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+EOF;
+
+        $table = new TableScriptSpitter("payloads");
+        $table->createIfNotExists();
+
+        $this->assertSame($exptectedString, $table->getScript());
+    }
+
+    public function test2GetScript(): void
+    {
+        $exptectedString = <<<EOF
+CREATE TABLE IF NOT EXISTS fields (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+EOF;
+
+        $table = (new TableScriptSpitter("fields"))->createIfNotExists();
+        $table->setCharSet("utf8mb4");
+
+        $integerField = (new FieldScriptSpitter("id"))
+            ->setUnsigned()
+            ->setType("INT")
+            ->setAutoIncrement()
+            ->setNotNull()
+            ->setPrimaryKey();
+
+        $nameField = (new FieldScriptSpitter("name"))
+            ->setType("VARCHAR(255)");
+
+        $table
+            ->addField($integerField)
+            ->addField($nameField);
 
         $this->assertSame($exptectedString, $table->getScript());
     }

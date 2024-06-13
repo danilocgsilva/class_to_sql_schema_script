@@ -8,6 +8,14 @@ class FieldScriptSpitter implements SpitterInterface
 {
     private readonly string $type;
 
+    private bool $unsigned = false;
+
+    private bool $notNull = false;
+
+    private bool $primaryKey = false;
+
+    private bool $autoIncrement = false;
+
     public function __construct(private readonly string $name)
     {        
     }
@@ -18,9 +26,46 @@ class FieldScriptSpitter implements SpitterInterface
         return $this;
     }
 
+    public function setUnsigned(): self
+    {   
+        $this->unsigned = true;
+        return $this;
+    }
+
+    public function setPrimaryKey(): self
+    {
+        $this->primaryKey = true;
+        return $this;
+    }
+
+    public function setAutoIncrement(): self
+    {
+        $this->autoIncrement = true;
+        return $this;
+    }
+
     public function getScript(): string
     {
-        return $this->name . " " . $this->type;
+        $string = $this->name . " " . $this->type;
+        if ($this->unsigned) {
+            $string .= " UNSIGNED";
+        }
+        if ($this->notNull) {
+            $string .= " NOT NULL";
+        }
+        if ($this->autoIncrement) {
+            $string .= " AUTO_INCREMENT";
+        }
+        if ($this->primaryKey) {
+            $string .= " PRIMARY KEY";
+        }
+        return $string;
+    }
+
+    public function setNotNull(): self
+    {
+        $this->notNull = true;
+        return $this;
     }
 
     public function getName(): string
