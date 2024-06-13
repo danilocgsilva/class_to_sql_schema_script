@@ -34,6 +34,12 @@ class TableScriptSpitter implements SpitterInterface
         return $this;
     }
 
+    public function setCollateSuffix(string $collateSuffix): self
+    {
+        $this->collateSuffix = $collateSuffix;
+        return $this;
+    }
+
     public function setPrimaryKey(string $fieldName): self
     {
         $primaryKeyField = $this->getFieldKeyByName($fieldName);

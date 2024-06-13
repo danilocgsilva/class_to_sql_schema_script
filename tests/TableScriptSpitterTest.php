@@ -191,33 +191,20 @@ EOF;
         $this->assertSame($exptectedString, $table->getScript());
     }
 
-    public function testGetScript(): void
+    #[DataProvider('providesTableNames')]
+    public function testGetScript(string $tableName): void
     {
-        $exptectedString = <<<EOF
-CREATE TABLE IF NOT EXISTS payloads (
-    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
-    content TEXT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-EOF;
-
-        $table = new TableScriptSpitter("payloads");
-        $table->createIfNotExists();
-
-        $this->assertSame($exptectedString, $table->getScript());
-    }
-
-    public function test2GetScript(): void
-    {
-        $exptectedString = <<<EOF
-CREATE TABLE IF NOT EXISTS fields (
+        $exptectedString = sprintf(<<<EOF
+CREATE TABLE IF NOT EXISTS %s (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-EOF;
+EOF
+        , $tableName);    
 
-        $table = (new TableScriptSpitter("fields"))->createIfNotExists();
+        $table = (new TableScriptSpitter($tableName))->createIfNotExists();
         $table->setCharSet("utf8mb4");
+        $table->setCollateSuffix("general_ci");
 
         $integerField = (new FieldScriptSpitter("id"))
             ->setUnsigned()
@@ -249,6 +236,14 @@ EOF;
         return [
             ["owners", "doc_number"],
             ["deliverer", "email"]
+        ];
+    }
+
+    public static function providesTableNames(): array
+    {
+        return [
+            ["payloads"],
+            ["fields"]
         ];
     }
 }
