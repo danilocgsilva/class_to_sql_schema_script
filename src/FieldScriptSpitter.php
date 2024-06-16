@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Danilocgsilva\ClassToSqlSchemaScript;
 
+use Danilocgsilva\ClassToSqlSchemaScript\TypeException;
+
 class FieldScriptSpitter implements SpitterInterface
 {
     private readonly string $type;
@@ -22,6 +24,9 @@ class FieldScriptSpitter implements SpitterInterface
     
     public function setType(string $type): self
     {
+        if ($this->typeNotValid($type)) {
+            throw new TypeException();
+        }
         $this->type = $type;
         return $this;
     }
@@ -71,5 +76,16 @@ class FieldScriptSpitter implements SpitterInterface
     public function getName(): string
     {
         return $this->name;
+    }
+
+    private function typeNotValid(string $type): bool
+    {
+        if (preg_match("/VARCHAR/", $type)) {
+            if (preg_match("/VARCHAR\(\d{1,3}\)/", $type)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 }

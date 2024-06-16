@@ -6,6 +6,7 @@ namespace Tests;
 
 use PHPUnit\Framework\TestCase;
 use Danilocgsilva\ClassToSqlSchemaScript\FieldScriptSpitter;
+use Danilocgsilva\ClassToSqlSchemaScript\TypeException;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class FieldScriptSpitterTest extends TestCase
@@ -102,6 +103,14 @@ class FieldScriptSpitterTest extends TestCase
 
         $expectedString = sprintf("%s INT PRIMARY KEY", $fieldName);
         $this->assertSame($expectedString, $field->getScript());
+    }
+
+    #[DataProvider('providesFieldName')]
+    public function testTypeException(string $fieldName)
+    {
+        $this->expectException(TypeException::class);
+        $fieldScriptSpitter = new FieldScriptSpitter($fieldName);
+        $fieldScriptSpitter->setType("VARCHAR(255");
     }
 
     public static function providesFieldName(): array

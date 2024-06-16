@@ -14,6 +14,9 @@ class DatabaseScriptSpitter implements SpitterInterface
 
     private bool $useSelf = false;
 
+    /** @var \Danilocgsilva\ClassToSqlSchemaScript\TableScriptSpitter[] */
+    private array $tableScriptSpitterList = [];
+
     public function __construct(private readonly string $name)
     {
     }
@@ -29,7 +32,18 @@ class DatabaseScriptSpitter implements SpitterInterface
         if ($this->useSelf) {
             $fullScript .= sprintf("\nUSE %s;", $this->name);
         }
+
+        foreach ($this->tableScriptSpitterList as $tableScriptSpitter) {
+            $fullScript .= "\n" . $tableScriptSpitter->getScript();
+        }
+
         return $fullScript;
+    }
+
+    public function addTableScriptSpitter(TableScriptSpitter $tableScriptSpitter): self
+    {
+        $this->tableScriptSpitterList[] = $tableScriptSpitter;
+        return $this;
     }
 
     public function setIfNotExists(): self
@@ -41,6 +55,18 @@ class DatabaseScriptSpitter implements SpitterInterface
     public function setUseSelf(): self
     {
         $this->useSelf = true;
+        return $this;
+    }
+
+    public function setCollate(string $collate): self
+    {
+        $this->collate = $collate;
+        return $this;
+    }
+
+    public function setCharset(string $charset): self
+    {
+        $this->charset = $charset;
         return $this;
     }
 }
