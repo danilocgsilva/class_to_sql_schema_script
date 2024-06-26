@@ -40,9 +40,9 @@ class DatabaseScriptSpitter implements SpitterInterface
         return $fullScript;
     }
 
-    public function addTableScriptSpitter(TableScriptSpitter $tableScriptSpitter): self
+    public function addTableScriptSpitter(TableScriptSpitter|ForeignKeyScriptSpitter $scriptSpitter): self
     {
-        $this->tableScriptSpitterList[] = $tableScriptSpitter;
+        $this->tableScriptSpitterList[] = $scriptSpitter;
         return $this;
     }
 
