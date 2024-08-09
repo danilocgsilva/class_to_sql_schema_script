@@ -19,14 +19,3 @@ It will result in:
 CREATE DATABASE your_database_name DEFAULT CHARACTER SET utf8 COLLATE utf8mb3_unicode_ci;
 ```
 Check more usage examples in tests.
-
-## Todo: allow unique key
-
-```
-CREATE TABLE neighborhood (
-    `id` INT UNSIGNED NOT NULL PRIMARY KEY,
-    `name` VARCHAR(255),
-    `parent_place` INT UNSIGNED UNIQUE,
-    `location_type` VARCHAR(32)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
-```

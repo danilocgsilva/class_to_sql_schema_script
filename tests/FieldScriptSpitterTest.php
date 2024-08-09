@@ -106,6 +106,18 @@ class FieldScriptSpitterTest extends TestCase
     }
 
     #[DataProvider('providesFieldName')]
+    public function testUniqueField(string $fieldName): void
+    {
+        $field = (new FieldScriptSpitter($fieldName))
+            ->setUnsigned()
+            ->setType("INT")
+            ->setUnique();
+
+        $expectedString = sprintf("%s INT UNSIGNED UNIQUE", $fieldName);
+        $this->assertSame($expectedString, $field->getScript());
+    }
+
+    #[DataProvider('providesFieldName')]
     public function testTypeException(string $fieldName)
     {
         $this->expectException(TypeException::class);

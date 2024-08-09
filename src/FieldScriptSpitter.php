@@ -16,6 +16,8 @@ class FieldScriptSpitter implements SpitterInterface
 
     private bool $primaryKey = false;
 
+    private bool $unique = false;
+
     private bool $autoIncrement = false;
 
     public function __construct(private readonly string $name)
@@ -49,11 +51,20 @@ class FieldScriptSpitter implements SpitterInterface
         return $this;
     }
 
+    public function setUnique(): self
+    {
+        $this->unique = true;
+        return $this;
+    }
+
     public function getScript(): string
     {
         $string = $this->name . " " . $this->type;
         if ($this->unsigned) {
             $string .= " UNSIGNED";
+        }
+        if ($this->unique) {
+            $string .= " UNIQUE";
         }
         if ($this->notNull) {
             $string .= " NOT NULL";
