@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Danilocgsilva\ClassToSqlSchemaScript\TableScriptSpitter;
 use Danilocgsilva\ClassToSqlSchemaScript\FieldScriptSpitter;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Danilocgsilva\ClassToSqlSchemaScript\ForeignKeyScriptSpitter;
 
 class TableScriptSpitterTest extends TestCase
 {
@@ -163,6 +164,36 @@ EOF;
             ->addField($field6);
 
         $this->assertSame($exptectedString, $table->getScript());
+    }
+
+    public function testTwoSimpleTables()
+    {
+        $expectedString = <<<EOF
+CREATE TABLE projects (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(255),
+    `project_parent` INT UNSIGNED,
+    `type` INT UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+ALTER TABLE projects ADD CONSTRAINT `id_parent_projects_constraint` FOREIGN KEY (`project_parent`) REFERENCES projects (`id`);
+CREATE TABLE types (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(255)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+ALTER TABLE projects ADD CONSTRAINT `id_types_project_constraint` FOREIGN KEY (`type`) REFERENCES `types` (`id`);
+EOF;
+
+        $tableProjects = new TableScriptSpitter("projects");
+        $foreignSelf = new ForeignKeyScriptSpitter();
+        $tableTypes = new TableScriptSpitter("projects");
+        $foreignType = new ForeignKeyScriptSpitter();
+
+        $assembledScript = $tableProjects->getScript() . $foreignSelf->getScript() . $tableTypes->getScript() . $foreignType->getScript();
+
+        $this->assertSame(
+            $expectedString,
+            $assembledScript
+        );
     }
 
     public function testFluentInterface(): void
