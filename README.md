@@ -1,5 +1,13 @@
 # Class to sql schema script
 
+## Instalation
+
+```
+composer require danilocgsilva/class_to_sql_schema_script
+```
+
+## Usage
+
 1. Create a classe with the database properies.
 
 2. Get the sql script.
