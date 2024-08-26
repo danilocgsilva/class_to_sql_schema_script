@@ -20,8 +20,16 @@ class FieldScriptSpitter implements SpitterInterface
 
     private bool $autoIncrement = false;
 
+    private bool $escape = false;
+
     public function __construct(private readonly string $name)
     {        
+    }
+
+    public function setEscape(): self
+    {
+        $this->escape = true;
+        return $this;
     }
     
     public function setType(string $type): self
@@ -59,7 +67,11 @@ class FieldScriptSpitter implements SpitterInterface
 
     public function getScript(): string
     {
-        $string = $this->name . " " . $this->type;
+        $scriptPrefix = $this->name;
+        if ($this->escape) {
+            $scriptPrefix = "`" . $this->name . "`";
+        }
+        $string = $scriptPrefix . " " . $this->type;
         if ($this->unsigned) {
             $string .= " UNSIGNED";
         }

@@ -12,6 +12,25 @@ use Danilocgsilva\ClassToSqlSchemaScript\ForeignKeyScriptSpitter;
 
 class TableScriptSpitterTest extends TestCase
 {
+    public function testSetEscape()
+    {
+        $expectedString = <<<EOF
+CREATE TABLE `medicines` (
+    name VARCHAR(192)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+EOF;
+        $tableScriptSpitter = new TableScriptSpitter("medicines");
+        $tableScriptSpitter->addField(
+            (new FieldScriptSpitter("name"))
+                ->setType("VARCHAR(192)")
+        );
+
+        $tableScriptSpitter->setEscape();
+
+        $this->assertSame($expectedString, $tableScriptSpitter->getScript());
+    }
+
+
     public function testScriptMedicinesSimpleTable(): void
     {
         $expectedString = <<<EOF
@@ -180,15 +199,76 @@ CREATE TABLE types (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
-ALTER TABLE projects ADD CONSTRAINT `id_types_project_constraint` FOREIGN KEY (`type`) REFERENCES `types` (`id`);
+ALTER TABLE projects ADD CONSTRAINT `id_types_project_constraint` FOREIGN KEY (`type`) REFERENCES types (`id`);
 EOF;
 
         $tableProjects = new TableScriptSpitter("projects");
+        $tableProjects->addField(
+            (new FieldScriptSpitter("id"))
+                ->setType("INT")
+                ->setUnsigned()
+                ->setNotNull()
+                ->setAutoIncrement()
+                ->setPrimaryKey()
+                ->setEscape()
+        );
+        $tableProjects->addField(
+            (new FieldScriptSpitter("name"))
+                ->setType("VARCHAR(255)")
+                ->setEscape()
+        );
+        $tableProjects->addField(
+            (new FieldScriptSpitter("project_parent"))
+                ->setType("INT")
+                ->setUnsigned()
+                ->setEscape()
+        );
+        $tableProjects->addField(
+            (new FieldScriptSpitter("type"))
+                ->setType("INT")
+                ->setUnsigned()
+                ->setNotNull()
+                ->setEscape()
+        );
+
+        $tableTypes = new TableScriptSpitter("types");
+        $tableTypes->addField(
+            (new FieldScriptSpitter("id"))
+                ->setType("INT")
+                ->setUnsigned()
+                ->setNotNull()
+                ->setAutoIncrement()
+                ->setPrimaryKey()
+                ->setEscape()
+        );
+        $tableTypes->addField(
+            (new FieldScriptSpitter("name"))
+                ->setType("VARCHAR(255)")
+                ->setEscape()
+        );
+
         $foreignSelf = new ForeignKeyScriptSpitter();
-        $tableTypes = new TableScriptSpitter("projects");
         $foreignType = new ForeignKeyScriptSpitter();
 
-        $assembledScript = $tableProjects->getScript() . $foreignSelf->getScript() . $tableTypes->getScript() . $foreignType->getScript();
+        $foreignSelf
+            ->setConstraintName('id_parent_projects_constraint')
+            ->setTable('projects')
+            ->setForeignKey('project_parent')
+            ->setForeignTable('projects')
+            ->setTableForeignkey('id');
+
+        $foreignType
+            ->setConstraintName('id_types_project_constraint')
+            ->setTable('projects')
+            ->setForeignKey('type')
+            ->setForeignTable('types')
+            ->setTableForeignkey('id');
+
+        $assembledScript =
+            $tableProjects->getScript() . PHP_EOL .
+            $foreignSelf->getScript() . PHP_EOL .
+            $tableTypes->getScript() . PHP_EOL .
+            $foreignType->getScript();
 
         $this->assertSame(
             $expectedString,
@@ -225,13 +305,15 @@ EOF;
     #[DataProvider('providesTableNames')]
     public function testGetScript(string $tableName): void
     {
-        $exptectedString = sprintf(<<<EOF
+        $exptectedString = sprintf(
+            <<<EOF
 CREATE TABLE IF NOT EXISTS %s (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-EOF
-        , $tableName);    
+EOF,
+            $tableName
+        );
 
         $table = (new TableScriptSpitter($tableName))->createIfNotExists();
         $table->setCharSet("utf8mb4");

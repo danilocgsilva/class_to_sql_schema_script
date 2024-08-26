@@ -16,10 +16,18 @@ class TableScriptSpitter implements SpitterInterface
 
     private $ifNotExists = false;
 
+    private bool $escape = false;
+
     public array $fields = [];
-    
+
     public function __construct(private readonly string $tableName)
     {
+    }
+
+    public function setEscape(): self
+    {
+        $this->escape = true;
+        return $this;
     }
 
     public function addField(FieldScriptSpitter $field): self
@@ -55,9 +63,13 @@ class TableScriptSpitter implements SpitterInterface
 
     public function getScript(): string
     {
-        $baseString = "CREATE TABLE %s (\n";
+        $replacement = "%s";
+        if ($this->escape) {
+            $replacement = "`" . $replacement . "`";
+        }
+        $baseString = "CREATE TABLE {$replacement} (\n";
         if ($this->ifNotExists) {
-            $baseString = sprintf($baseString, "IF NOT EXISTS %s");
+            $baseString = sprintf($baseString, "IF NOT EXISTS {$replacement}");
         }
 
         foreach ($this->fields as $key => $field) {
