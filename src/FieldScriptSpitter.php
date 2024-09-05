@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Danilocgsilva\ClassToSqlSchemaScript;
 
-use Danilocgsilva\ClassToSqlSchemaScript\TypeException;
+use Danilocgsilva\ClassToSqlSchemaScript\Exceptions\TypeException;
 
 class FieldScriptSpitter implements SpitterInterface
 {

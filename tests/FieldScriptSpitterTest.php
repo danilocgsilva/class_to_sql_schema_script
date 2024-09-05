@@ -6,8 +6,8 @@ namespace Tests;
 
 use PHPUnit\Framework\TestCase;
 use Danilocgsilva\ClassToSqlSchemaScript\FieldScriptSpitter;
-use Danilocgsilva\ClassToSqlSchemaScript\TypeException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Danilocgsilva\ClassToSqlSchemaScript\Exceptions\TypeException;
 
 class FieldScriptSpitterTest extends TestCase
 {

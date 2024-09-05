@@ -6,8 +6,6 @@ namespace Danilocgsilva\ClassToSqlSchemaScript;
 
 class DatabaseClass
 {
-
-
     /* @var \Danilocgsilva\ClassToSqlSchemScript\TableClass[] */
     public readonly array $tables;
     
